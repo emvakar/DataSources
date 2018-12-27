@@ -28,7 +28,7 @@ final class MultipleSectionCollectionViewController: UIViewController, UICollect
     return collectionView
   }()
 
-  private lazy var _dataSource = DataSource<CollectionViewAdapter>.init(adapter: .init(collectionView: self.collectionView))
+  private lazy var _dataSource: DataController<CollectionViewAdapter> = .init(adapter: .init(collectionView: self.collectionView))
 
   private let section0 = Section(ModelA.self, isEqual: { $0.identity == $1.identity })
   private let section1 = Section(ModelB.self, isEqual: { $0.identity == $1.identity })
@@ -105,12 +105,12 @@ final class MultipleSectionCollectionViewController: UIViewController, UICollect
       at: indexPath,
       returnType: UICollectionViewCell.self,
       handlers: [
-      .init(section: section0) { m in
+      .init(section: section0) { collectionView, indexPath, m in
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! Cell
         cell.label.text = m.title
         return cell
       },
-      .init(section: section1) { m in
+      .init(section: section1) { collectionView, indexPath, m in
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! Cell
         cell.label.text = m.title
         return cell

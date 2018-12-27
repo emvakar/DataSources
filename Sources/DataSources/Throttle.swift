@@ -40,14 +40,20 @@ final class Throttle {
     timerReference?.cancel()
 
     let timer = DispatchSource.makeTimerSource(queue: queue)
-    timer.scheduleOneshot(deadline: deadline)
+    timer.schedule(deadline: deadline)
 
-    timer.setEventHandler(handler: { [weak self] in
+    timer.setEventHandler(handler: { [weak timer, weak self] in
       self?.lastSendTime = nil
       handler()
+      timer?.cancel()
+      self?.timerReference = nil
     })
     timer.resume()
     
     timerReference = timer
+  }
+
+  func cancel() {
+    timerReference = nil
   }
 }

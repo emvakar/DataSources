@@ -27,7 +27,7 @@ final class SingleSectionCollectionViewController: UIViewController, UICollectio
     return collectionView
   }()
 
-  private lazy var dataSource = SectionDataSource<ModelA, CollectionViewAdapter>(
+  private lazy var dataSource: SectionDataController<ModelA, CollectionViewAdapter> = .init(
     adapter: .init(collectionView: self.collectionView),
     displayingSection: 0,
     isEqual: { a, b in a.identity == b.identity }
@@ -90,7 +90,7 @@ final class SingleSectionCollectionViewController: UIViewController, UICollectio
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! Cell
-    let m = dataSource.item(at: indexPath)
+    let m = dataSource.item(at: indexPath)!
     cell.label.text = m.title
     return cell
   }

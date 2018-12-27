@@ -9,9 +9,10 @@
 import Foundation
 
 #if !COCOAPODS
-  @_exported import Diff
+  @_exported import ListDiff
 #endif
 
+@inline(__always)
 func assertMainThread() {
-  assert(Thread.isMainThread)
+  assert(Thread.isMainThread, "You must call on MainThread")
 }

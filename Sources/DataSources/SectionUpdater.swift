@@ -56,38 +56,46 @@ final class SectionUpdater<T: Diffable, A: Updating> {
         isEqual: isEqual
       )
 
+      guard diff.changeCount > 0 else {
+        completion()
+        return
+      }
+
       var animated = animated
 
       if diff.changeCount > 300 {
         animated = false
       }
-
-      if animated == false {
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-      }
-
+      
       let _adapter = self.adapter
 
+      let indexPathDiff = IndexPathDiff(diff: diff, targetSection: targetSection)
+
+      let context = UpdateContext.init(
+        newItems: newItems.indices.lazy.map { IndexPath(item: $0, section: targetSection) },
+        oldItems: currentDisplayingItems.indices.lazy.map { IndexPath(item: $0, section: targetSection) },
+        diff: indexPathDiff
+      )
+      
       self.adapter.performBatch(
+        in: context,
+        animated: animated,
         updates: {
-
-          _adapter.reloadItems(at: diff.updates.map { IndexPath(item: $0, section: targetSection) })
-          _adapter.deleteItems(at: diff.deletes.map { IndexPath(item: $0, section: targetSection) })
-          _adapter.insertItems(at: diff.inserts.map { IndexPath(item: $0, section: targetSection) })
-
-          for move in diff.moves {
+          
+          _adapter.reloadItems(at: indexPathDiff.updates, in: context)
+          _adapter.deleteItems(at: indexPathDiff.deletes, in: context)
+          _adapter.insertItems(at: indexPathDiff.inserts, in: context)
+          
+          for move in indexPathDiff.moves {
             _adapter.moveItem(
-              at: IndexPath(item: move.from, section: targetSection),
-              to: IndexPath(item: move.to, section: targetSection)
+              at: move.from,
+              to: move.to,
+              in: context
             )
           }
       },
         completion: {
           assertMainThread()
-          if animated == false {
-            CATransaction.commit()
-          }
           self.state = .idle
           completion()
       }

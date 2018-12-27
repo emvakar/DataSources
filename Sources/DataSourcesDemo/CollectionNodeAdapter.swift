@@ -13,73 +13,48 @@ import class AsyncDisplayKit.ASCollectionNode
 
 public final class CollectionNodeAdapter: Updating {
 
-  private(set) public weak var collectionNode: ASCollectionNode?
+  public unowned let collectionNode: ASCollectionNode
+
+  public var target: ASCollectionNode {
+    return collectionNode
+  }
 
   public init(collectionNode: ASCollectionNode) {
     self.collectionNode = collectionNode
   }
 
-  public func insertItems(at indexPaths: [IndexPath]) {
-
-    guard let collectionNode = collectionNode else {
-      assertionFailure("collectionNode has released")
-      return
-    }
+  public func insertItems(at indexPaths: [IndexPath], in context: UpdateContext) {
 
     collectionNode.insertItems(at: indexPaths)
   }
 
-  public func deleteItems(at indexPaths: [IndexPath]) {
-
-    guard let collectionNode = collectionNode else {
-      assertionFailure("collectionNode has released")
-      return
-    }
+  public func deleteItems(at indexPaths: [IndexPath], in context: UpdateContext) {
 
     collectionNode.deleteItems(at: indexPaths)
   }
 
-  public func reloadItems(at indexPaths: [IndexPath]) {
-
-    guard let collectionNode = collectionNode else {
-      assertionFailure("collectionNode has released")
-      return
-    }
+  public func reloadItems(at indexPaths: [IndexPath], in context: UpdateContext) {
 
     collectionNode.reloadItems(at: indexPaths)
   }
 
-  public func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
-
-    guard let collectionNode = collectionNode else {
-      assertionFailure("collectionNode has released")
-      return
-    }
+  public func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath, in context: UpdateContext) {
 
     collectionNode.moveItem(at: indexPath, to: newIndexPath)
   }
 
-  public func performBatch(updates: @escaping () -> Void, completion: @escaping () -> Void) {
+  public func performBatch(in context: UpdateContext, animated: Bool, updates: @escaping () -> Void,  completion: @escaping () -> Void) {
 
-    guard let collectionNode = collectionNode else {
-      assertionFailure("collectionNode has released")
-      return
+    collectionNode.performBatch(
+      animated: animated,
+      updates: updates,
+      completion: { _ in
+        completion()
     }
-
-    collectionNode.performBatchUpdates({
-      updates()
-    }, completion: { result in
-      completion()
-    })
-
+    )
   }
 
   public func reload(completion: @escaping () -> Void) {
-
-    guard let collectionNode = collectionNode else {
-      assertionFailure("collectionNode has released")
-      return
-    }
 
     collectionNode.reloadData {
       completion()
